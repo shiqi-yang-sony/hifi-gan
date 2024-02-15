@@ -94,7 +94,8 @@ def debug_shiqi():
     checkpoint_file = "./weights/g_01300000"# "/home/zhong/Project/FY23_Audio_MaskGIT/1_quick_start/vocoder/hifigan/g_01000000"
     mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
 
-    input_mels_dir = './mels/'#'/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls/'
+    #input_mels_dir = './mels/'#'/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls/'
+    input_mels_dir = '/home/acf15978rs/projects/weights_exp/maskP0.55_0.2-1/'
     filelist = get_track(input_mels_dir, format_ext=".pth")
 
     #checkpoint_file = "./weights/g_01300000"
