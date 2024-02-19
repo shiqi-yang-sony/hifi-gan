@@ -95,7 +95,7 @@ def debug_shiqi():
     mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
 
     #input_mels_dir = './mels/'#'/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls/'
-    input_mels_dir = '/home/acf15978rs/projects/weights_exp/maskP0.55_0.2-1/'
+    input_mels_dir = '/home/shiqi/project/gen_audio/'
     filelist = get_track(input_mels_dir, format_ext=".pth")
 
     #checkpoint_file = "./weights/g_01300000"
