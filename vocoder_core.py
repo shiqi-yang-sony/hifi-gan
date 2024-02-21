@@ -180,12 +180,12 @@ def debug_shiqi_multiFOLD(input_mels_dir_fold = '/home/shiqi/project/gen_audio/m
 
             for i, filname in tqdm(enumerate(filelist)):
                     x = torch.load(os.path.join(input_mels_dir, filname))
-                    print("The value range of the input: ", torch.max(x), torch.min(x))
-                    print("the data itself: ", x)
+                    #print("The value range of the input: ", torch.max(x), torch.min(x))
+                    #print("the data itself: ", x)
                     #break
                     x = transforms_mel_denorm_hifigan(x)
-                    print("The value range of the input: ", torch.max(x), torch.min(x))
-                    print("the data itself: ", x)
+                    #print("The value range of the input: ", torch.max(x), torch.min(x))
+                    #print("the data itself: ", x)
                     #break
                     x = torch.FloatTensor(x).to(mymodel.device)
                     audio = mymodel.predict(x)
@@ -193,7 +193,7 @@ def debug_shiqi_multiFOLD(input_mels_dir_fold = '/home/shiqi/project/gen_audio/m
                     audio = audio.cpu().numpy().astype('int16')
                     output_file = os.path.join(output_dir, os.path.splitext(filname)[0] + '_generated_e2e.wav')
                     write(output_file, mymodel.config.sampling_rate, audio)
-                    print(output_file)
+                    #print(output_file)
 
 
 
