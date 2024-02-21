@@ -89,6 +89,31 @@ class Scale(object):
             return (x - self.source_min) / (self.source_max - self.source_min) * \
                 (self.target_max - self.target_min) + self.target_min
 
+
+
+def debug_hifigan_class():
+    '''checkpoint_file = "/home/zhong/RelatedWorks/hifi-gan/pretrained/VCTK_V1/generator_v1"
+    mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
+    input_mels_dir = '/mnt/sata1/models/FY22_SoundTagging/2_highgan-mae/VoBa_mk1/2023-02-08_07-21-51/audio/100/mels_for_tfgan'
+    output_dir = "/mnt/sata1/models/FY22_SoundTagging/2_highgan-mae/VoBa_mk1/2023-02-08_07-21-51/audio/100/wave_hifigan_check" #_torchaudio'''
+    checkpoint_file = "./weights/g_01300000"
+    mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
+    input_mels_dir = './mels'
+    output_dir = "./outputs" #_torchaudio
+    filelist = os.listdir(input_mels_dir)
+    os.makedirs(output_dir, exist_ok=True)
+
+    for i, filname in tqdm(enumerate(filelist)):
+            x = np.load(os.path.join(input_mels_dir, filname))
+            x = torch.FloatTensor(x).to(mymodel.device)
+            audio = mymodel.predict(x)
+            audio = audio * MAX_WAV_VALUE
+            audio = audio.cpu().numpy().astype('int16')
+            output_file = os.path.join(output_dir, os.path.splitext(filname)[0] + '_generated_e2e.wav')
+            write(output_file, mymodel.config.sampling_rate, audio)
+            print(output_file)
+
+
 def debug_shiqi(input_mels_dir = '/home/shiqi/project/gen_audio/mel/', output_dir = "./outputs"):
     import torchvision
     checkpoint_file = "./weights/g_01300000"# "/home/zhong/Project/FY23_Audio_MaskGIT/1_quick_start/vocoder/hifigan/g_01000000"
@@ -128,27 +153,50 @@ def debug_shiqi(input_mels_dir = '/home/shiqi/project/gen_audio/mel/', output_di
             write(output_file, mymodel.config.sampling_rate, audio)
             print(output_file)
 
-def debug_hifigan_class():
-    '''checkpoint_file = "/home/zhong/RelatedWorks/hifi-gan/pretrained/VCTK_V1/generator_v1"
-    mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
-    input_mels_dir = '/mnt/sata1/models/FY22_SoundTagging/2_highgan-mae/VoBa_mk1/2023-02-08_07-21-51/audio/100/mels_for_tfgan'
-    output_dir = "/mnt/sata1/models/FY22_SoundTagging/2_highgan-mae/VoBa_mk1/2023-02-08_07-21-51/audio/100/wave_hifigan_check" #_torchaudio'''
-    checkpoint_file = "./weights/g_01300000"
-    mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
-    input_mels_dir = './mels'
-    output_dir = "./outputs" #_torchaudio
-    filelist = os.listdir(input_mels_dir)
-    os.makedirs(output_dir, exist_ok=True)
 
-    for i, filname in tqdm(enumerate(filelist)):
-            x = np.load(os.path.join(input_mels_dir, filname))
-            x = torch.FloatTensor(x).to(mymodel.device)
-            audio = mymodel.predict(x)
-            audio = audio * MAX_WAV_VALUE
-            audio = audio.cpu().numpy().astype('int16')
-            output_file = os.path.join(output_dir, os.path.splitext(filname)[0] + '_generated_e2e.wav')
-            write(output_file, mymodel.config.sampling_rate, audio)
-            print(output_file)
+def debug_shiqi_multiFOLD(input_mels_dir_fold = '/home/shiqi/project/gen_audio/mel/', output_dir_fold = "./outputs/"):
+    import torchvision
+    checkpoint_file = "./weights/g_01300000"# "/home/zhong/Project/FY23_Audio_MaskGIT/1_quick_start/vocoder/hifigan/g_01000000"
+    mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
+
+    #input_mels_dir = './mels/'#'/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls/'
+    for num_iter in [15,20,30,50]:
+        for choice_temperature in [4.5,6,9,15]:
+            input_mels_dir = input_mels_dir_fold+'/T{}_step{}/'.format(choice_temperature,num_iter)
+            filelist = get_track(input_mels_dir, format_ext=".pth")
+
+            #checkpoint_file = "./weights/g_01300000"
+            #mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
+            #input_mels_dir = 
+            output_dir = output_dir_fold+'/T{}_step{}/'.format(choice_temperature,num_iter)
+            #filelist = os.listdir(input_mels_dir)
+
+            #output_dir = "/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls_hifigan" #_torchaudio
+            os.makedirs(output_dir, exist_ok=True)
+
+            transforms_mel_denorm_hifigan = torchvision.transforms.Compose([
+                    Scale(np.log(1e-4), np.log(10), -1.0, 1.0, inverse=True),
+                ])
+
+            for i, filname in tqdm(enumerate(filelist)):
+                    x = torch.load(os.path.join(input_mels_dir, filname))
+                    print("The value range of the input: ", torch.max(x), torch.min(x))
+                    print("the data itself: ", x)
+                    #break
+                    x = transforms_mel_denorm_hifigan(x)
+                    print("The value range of the input: ", torch.max(x), torch.min(x))
+                    print("the data itself: ", x)
+                    #break
+                    x = torch.FloatTensor(x).to(mymodel.device)
+                    audio = mymodel.predict(x)
+                    audio = audio * MAX_WAV_VALUE
+                    audio = audio.cpu().numpy().astype('int16')
+                    output_file = os.path.join(output_dir, os.path.splitext(filname)[0] + '_generated_e2e.wav')
+                    write(output_file, mymodel.config.sampling_rate, audio)
+                    print(output_file)
+
+
+
 
 if __name__ == '__main__':
     #main()
@@ -163,7 +211,8 @@ if __name__ == '__main__':
                     type=str,
                     default='./outputs')
     args = parser.parse_args()
-    debug_shiqi(args.input_mels_dir, args.output_dir)
+    #debug_shiqi(args.input_mels_dir, args.output_dir)
+    debug_shiqi_multiFOLD(args.input_mels_dir, args.output_dir)
 
 
 
