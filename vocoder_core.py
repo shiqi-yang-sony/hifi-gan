@@ -89,19 +89,19 @@ class Scale(object):
             return (x - self.source_min) / (self.source_max - self.source_min) * \
                 (self.target_max - self.target_min) + self.target_min
 
-def debug_shiqi():
+def debug_shiqi(input_mels_dir = '/home/shiqi/project/gen_audio/mel/', output_dir = "./outputs"):
     import torchvision
     checkpoint_file = "./weights/g_01300000"# "/home/zhong/Project/FY23_Audio_MaskGIT/1_quick_start/vocoder/hifigan/g_01000000"
     mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
 
     #input_mels_dir = './mels/'#'/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls/'
-    input_mels_dir = '/home/shiqi/project/gen_audio/mel/'
+    input_mels_dir = input_mels_dir
     filelist = get_track(input_mels_dir, format_ext=".pth")
 
     #checkpoint_file = "./weights/g_01300000"
     #mymodel = Hifi_GAN(checkpoint_file = checkpoint_file)
     #input_mels_dir = 
-    output_dir = "./outputs" #_torchaudio
+    output_dir = output_dir #_torchaudio
     #filelist = os.listdir(input_mels_dir)
 
     #output_dir = "/home/dataset_share/AVMAGE/train800_3e-4_DA_nocls_hifigan" #_torchaudio
@@ -153,7 +153,17 @@ def debug_hifigan_class():
 if __name__ == '__main__':
     #main()
     #debug_hifigan_class()
-    debug_shiqi()
+    import argparse
+    parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--input_mels_dir",
+                    type=str,
+                    default='/home/shiqi/project/gen_audio/mel/')
+    parser.add_argument("--output_dir",
+                    type=str,
+                    default='./outputs')
+    args = parser.parse_args()
+    debug_shiqi(args.input_mels_dir, args.output_dir)
 
 
 
