@@ -163,6 +163,7 @@ def debug_shiqi_multiFOLD(input_mels_dir_fold = '/home/shiqi/project/gen_audio/m
     for num_iter in [15,20,30,50]:
         for choice_temperature in [4.5,6,9,15]:
             if num_iter==15 and choice_temperature==4.5:
+                print('already done')
                 break
             input_mels_dir = input_mels_dir_fold+'/T{}_step{}/'.format(choice_temperature,num_iter)
             filelist = get_track(input_mels_dir, format_ext=".pth")
